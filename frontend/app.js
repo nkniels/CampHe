@@ -1,16 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ── Service Worker ─────────────────────────────────────
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(registration => {
-                console.log('SW registered: ', registration.scope);
-            }, err => {
-                console.warn('SW registration failed: ', err);
-            });
-        });
-    }
-
     const grid = document.getElementById('campaign-grid');
 
     // ── Detail Drawer ──────────────────────────────────────
