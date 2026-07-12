@@ -125,8 +125,7 @@ const requestNotificationPermission = async () => {
         if (permission === 'granted') {
             console.log('Notification permission granted.');
             if (messaging) {
-                // Add your VAPID key here later
-                const currentToken = await getToken(messaging, { vapidKey: 'YOUR_VAPID_KEY_HERE' });
+                const currentToken = await getToken(messaging, { vapidKey: 'ex4b_K3KQZDISziEqhV7mQI9EoPbHhso4b2hTVveS-4' });
                 if (currentToken) {
                     console.log('FCM Token:', currentToken);
                     // Send this token to your server or save it to Firestore here
