@@ -24,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-const CACHE_NAME = 'camphe-cache-v1';
+const CACHE_NAME = 'camphe-cache-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -35,20 +35,41 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Force SW to activate immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
 });
 
+self.addEventListener('activate', event => {
+  // Clean up old caches
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
 self.addEventListener('fetch', event => {
+  // Network-first strategy: try to fetch from network, if fails, use cache.
+  // This ensures the app always gets the latest CSS, JS, and JSON when online!
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+        // Clone and update cache with new version
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, resClone);
+        });
+        return response;
       })
+      .catch(() => caches.match(event.request))
   );
 });
