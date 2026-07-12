@@ -1,0 +1,54 @@
+[
+  {
+    "id": "demo-001",
+    "title": "National Malaria Vaccination Drive",
+    "location": "Yaoundé",
+    "date": "2026-08-01",
+    "description": "A nationwide initiative to provide free malaria vaccinations to children under 5. Conducted in partnership with MINSANTE and WHO.",
+    "status": "upcoming",
+    "source_name": "MINSANTE",
+    "source_url": "https://www.minsante.cm",
+    "category": "government",
+    "link": "https://www.minsante.cm",
+    "scraped_at": "2026-07-12T06:00:00Z"
+  },
+  {
+    "id": "demo-002",
+    "title": "Cholera Awareness & Water Purification Campaign",
+    "location": "Douala",
+    "date": "2026-07-20",
+    "description": "Educating communities on clean water practices and distributing water purification tablets in vulnerable districts.",
+    "status": "active",
+    "source_name": "WHO Cameroon",
+    "source_url": "https://www.afro.who.int/countries/cameroon",
+    "category": "ngo",
+    "link": "https://www.afro.who.int/countries/cameroon",
+    "scraped_at": "2026-07-12T06:00:00Z"
+  },
+  {
+    "id": "demo-003",
+    "title": "Free HIV Testing & Counseling Week",
+    "location": "Bafoussam",
+    "date": "2026-07-25",
+    "description": "Free, confidential HIV screening for adults aged 18+ at community centers across the West Region.",
+    "status": "upcoming",
+    "source_name": "Actu Cameroun",
+    "source_url": "https://actucameroun.com/category/sante/",
+    "category": "media",
+    "link": "https://actucameroun.com/category/sante/",
+    "scraped_at": "2026-07-12T06:00:00Z"
+  },
+  {
+    "id": "demo-004",
+    "title": "Humanitarian Health Response — Far North Region",
+    "location": "Maroua, Far North",
+    "date": "2026-07-15",
+    "description": "Emergency health intervention covering maternal health, nutrition support, and community-based disease surveillance in refugee-affected areas.",
+    "status": "active",
+    "source_name": "International Medical Corps",
+    "source_url": "https://internationalmedicalcorps.org/country/cameroon/",
+    "category": "ngo",
+    "link": "https://internationalmedicalcorps.org/country/cameroon/",
+    "scraped_at": "2026-07-12T06:00:00Z"
+  }
+]

@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv/
+env/
+venv/
+ENV/
+pip-wheel-metadata/
+
+# Virtual Environments
+.python-version
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+scraper.log
+
+# Secrets / Config
+.env
+.env.local
+secrets.json
+
+# Node (if ever added)
+node_modules/

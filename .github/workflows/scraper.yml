@@ -1,0 +1,57 @@
+name: Daily Campaign Scraper
+
+on:
+  schedule:
+    # Runs every day at 06:00 UTC (07:00 WAT)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Run a single source by name (leave blank for all)'
+        required: false
+        default: ''
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run scraper (all sources)
+        if: ${{ github.event.inputs.source == '' }}
+        run: python backend/scraper.py
+        working-directory: ${{ github.workspace }}
+
+      - name: Run scraper (single source)
+        if: ${{ github.event.inputs.source != '' }}
+        run: python backend/scraper.py --source "${{ github.event.inputs.source }}"
+        working-directory: ${{ github.workspace }}
+
+      - name: Commit updated campaigns.json
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add frontend/data/campaigns.json
+          # Only commit if there are actual changes
+          git diff --staged --quiet || git commit -m "chore(data): update campaigns $(date -u +'%Y-%m-%dT%H:%M:%SZ') [skip ci]"
+          git push

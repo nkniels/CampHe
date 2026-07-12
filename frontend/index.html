@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampHe - Health Campaigns in Cameroon</title>
+    <meta name="description" content="Track and discover active health campaigns and medical initiatives across Cameroon.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007A5E">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <header class="glass-header">
+        <div class="header-content">
+            <h1 class="logo">Camp<span class="highlight">He</span></h1>
+            <p class="subtitle">Cameroon Health Initiatives</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2>Stay Informed, Stay Healthy.</h2>
+            <p>Discover vaccination drives, awareness campaigns, and free checkups in your region.</p>
+        </section>
+
+        <section class="campaign-section">
+            <div class="section-header">
+                <h3>Active & Upcoming Campaigns</h3>
+                <div class="status-indicator">
+                    <span class="dot"></span> Live Data
+                </div>
+            </div>
+            <div id="campaign-grid" class="campaign-grid">
+                <!-- Campaigns will be dynamically inserted here -->
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
