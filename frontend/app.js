@@ -34,6 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.className   = `badge ${status}`;
         badge.textContent = status;
 
+        const participateEl = document.getElementById('detail-participate');
+        participateEl.innerHTML = `
+            <strong>Comment participer / s'inscrire ?</strong><br>
+            Les modalités de participation (lieux exacts, contacts, documents requis) sont spécifiques à chaque campagne. 
+            Veuillez lire la description ci-dessus ou cliquer sur le bouton <b>"Source Originale"</b> ci-dessous pour accéder aux instructions officielles.
+        `;
+
         const sourceEl     = document.getElementById('detail-source');
         const sourceNameEl = document.getElementById('detail-source-name');
         if (campaign.source_name) {
@@ -74,10 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchCampaigns() {
         try {
             await new Promise(r => setTimeout(r, 800));
-            // Fetch directly from GitHub raw so the frontend gets live scraper updates 
-            // instantly, without requiring a Firebase deploy after every daily run.
-            const url = 'https://raw.githubusercontent.com/nkniels/CampHe/main/frontend/data/campaigns.json?t=' + Date.now();
-            const response = await fetch(url);
+            // Use local path so Firebase instant deploy makes it immediately available, 
+            // bypassing the 5-minute GitHub raw CDN cache.
+            const response = await fetch('./data/campaigns.json?t=' + Date.now());
             if (!response.ok) throw new Error('Network response was not ok');
             renderCampaigns(await response.json());
         } catch (error) {

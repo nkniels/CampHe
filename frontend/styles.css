@@ -573,10 +573,27 @@ h1, h2, h3, h4 { font-weight: 800; }
 }
 
 #detail-description {
-    font-size: 0.97rem;
-    color: #cbd5e1;
-    line-height: 1.75;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    opacity: 0.9;
     white-space: pre-wrap;
+}
+
+.participate-box {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 122, 94, 0.15); /* Tint of cam-green */
+    border-left: 4px solid var(--cam-green);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+.participate-box strong {
+    color: var(--cam-green);
+    display: inline-block;
+    margin-bottom: 0.4rem;
 }
 
 /* Source attribution */
