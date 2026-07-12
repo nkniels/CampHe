@@ -2,7 +2,7 @@
 
 > A lightweight Progressive Web App (PWA) to track health campaigns in Cameroon.
 
-![CampHe Logo](./frontend/logo.jpg)
+![CampHe Banner](./frontend/icon-192.png)
 
 ---
 
@@ -114,4 +114,3 @@ The GitHub Actions workflow (`.github/workflows/scraper.yml`) runs **daily at 06
 ## License
 
 MIT
-
