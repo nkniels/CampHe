@@ -7,16 +7,16 @@
 
 /* Design Tokens */
 :root {
-    --bg-color: #0f172a;
-    --text-color: #f8fafc;
-    --text-muted: #94a3b8;
+    --bg-color: #034265; /* Deep Navy Blue extracted from Logo */
+    --text-color: #ffffff;
+    --text-muted: #9fc3d9; /* Lighter blue-tinted muted text to match navy background */
 
     --cam-green: #007a5e;
     --cam-red:   #ce1126;
     --cam-yellow:#fcd116;
 
-    --glass-bg:     rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg:     rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
 
     --header-h: 72px;
     --container-max: 1280px;
@@ -76,7 +76,7 @@ h1, h2, h3, h4 { font-weight: 800; }
    HEADER
 ═══════════════════════════════════════════ */
 .glass-header {
-    background: rgba(15, 23, 42, 0.75);
+    background: rgba(3, 66, 101, 0.75);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--glass-border);
@@ -447,7 +447,7 @@ h1, h2, h3, h4 { font-weight: 800; }
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.75);
+    background: rgba(3, 66, 101, 0.75);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     z-index: 500;
@@ -463,7 +463,7 @@ h1, h2, h3, h4 { font-weight: 800; }
     right: 0;
     bottom: 0;
     width: min(520px, 100vw);
-    background: linear-gradient(160deg, rgba(22, 35, 58, 0.98), rgba(15, 23, 42, 0.98));
+    background: linear-gradient(160deg, rgba(10, 80, 115, 0.98), rgba(3, 66, 101, 0.98));
     border-left: 1px solid var(--glass-border);
     box-shadow: -20px 0 60px rgba(0,0,0,0.5);
     z-index: 501;
@@ -651,7 +651,7 @@ h1, h2, h3, h4 { font-weight: 800; }
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.88);
+    background: rgba(3, 66, 101, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     z-index: 1000;

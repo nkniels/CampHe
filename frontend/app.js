@@ -74,7 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchCampaigns() {
         try {
             await new Promise(r => setTimeout(r, 800));
-            const response = await fetch('./data/campaigns.json?t=' + Date.now());
+            // Fetch directly from GitHub raw so the frontend gets live scraper updates 
+            // instantly, without requiring a Firebase deploy after every daily run.
+            const url = 'https://raw.githubusercontent.com/nkniels/CampHe/main/frontend/data/campaigns.json?t=' + Date.now();
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
             renderCampaigns(await response.json());
         } catch (error) {
