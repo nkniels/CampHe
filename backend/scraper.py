@@ -102,6 +102,30 @@ def deduplicate(campaigns: list[dict]) -> list[dict]:
     return unique
 
 
+def filter_campaign_news(campaigns: list[dict]) -> list[dict]:
+    """
+    Strictly filter the dataset to only include actual campaigns and events,
+    discarding generic health news or administrative announcements.
+    """
+    # Strict keywords indicating an actionable health campaign, event, or response
+    campaign_keywords = [
+        "campagne", "campaign", "vaccin", "dépistage", "screening",
+        "don de sang", "blood donation", "gratuit", "sensibilisation",
+        "distribution", "moustiquaire", "riposte", "lutte contre",
+        "journée mondiale", "world day", "urgence", "cholera", "épidémie", "epidemic"
+    ]
+    
+    filtered = []
+    for c in campaigns:
+        # Combine title and description to check for keywords
+        text = (c.get("title", "") + " " + c.get("description", "")).lower()
+        
+        if any(kw in text for kw in campaign_keywords):
+            filtered.append(c)
+            
+    return filtered
+
+
 def run_scrapers(scrapers: list, max_workers: int = 5) -> list[dict]:
     """Run all scrapers concurrently using a thread pool."""
     all_results = []
@@ -160,8 +184,11 @@ def main():
     raw = run_scrapers(scrapers)
     logger.info(f"Total raw items collected: {len(raw)}")
 
-    campaigns = deduplicate(raw)
-    logger.info(f"After deduplication: {len(campaigns)} unique campaign(s)")
+    unique_campaigns = deduplicate(raw)
+    logger.info(f"After deduplication: {len(unique_campaigns)} unique item(s)")
+
+    campaigns = filter_campaign_news(unique_campaigns)
+    logger.info(f"After strict campaign filter: {len(campaigns)} actionable campaign(s) remaining")
 
     if args.dry_run:
         print(json.dumps(campaigns, indent=2, ensure_ascii=False))
