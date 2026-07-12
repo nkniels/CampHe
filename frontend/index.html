@@ -22,7 +22,9 @@
     <header class="glass-header">
         <div class="header-content">
             <div class="header-brand">
-                <img src="logo.jpg" alt="CampHe Logo" class="app-logo">
+                <div class="app-logo-wrapper">
+                    <img src="logo.jpg" alt="CampHe Logo" class="app-logo">
+                </div>
                 <div>
                     <p class="subtitle">Cameroon Health Initiatives</p>
                 </div>
@@ -93,6 +95,53 @@
             </div>
         </section>
     </main>
+
+    <!-- Campaign Detail Drawer -->
+    <div id="detail-overlay" class="detail-overlay"></div>
+    <aside id="detail-drawer" class="detail-drawer">
+        <button class="detail-close" id="detail-close-btn">&times;</button>
+        <div class="detail-drawer-inner">
+            <div class="detail-header">
+                <div class="detail-badge-row">
+                    <span id="detail-badge" class="badge unknown">unknown</span>
+                    <span id="detail-category-tag" class="detail-category-tag">general</span>
+                </div>
+                <h2 id="detail-title">Campaign Title</h2>
+            </div>
+
+            <div class="detail-meta">
+                <div class="detail-meta-row">
+                    <span class="detail-meta-label">📍 Location</span>
+                    <span id="detail-location">—</span>
+                </div>
+                <div class="detail-meta-row">
+                    <span class="detail-meta-label">📅 Date</span>
+                    <span id="detail-date">—</span>
+                </div>
+                <div class="detail-meta-row">
+                    <span class="detail-meta-label">🏷️ Status</span>
+                    <span id="detail-status">—</span>
+                </div>
+            </div>
+
+            <div>
+                <p class="detail-section-title">About This Campaign</p>
+                <p id="detail-description">—</p>
+            </div>
+
+            <div id="detail-source" class="detail-source" style="display:none;">
+                <span>📡</span>
+                <span id="detail-source-name"></span>
+            </div>
+
+            <div class="detail-cta">
+                <a id="detail-link-btn" class="detail-link-btn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    Visit Original Source
+                </a>
+            </div>
+        </div>
+    </aside>
 
     <!-- App Logic -->
     <script src="app.js"></script>

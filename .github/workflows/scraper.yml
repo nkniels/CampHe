@@ -41,11 +41,17 @@ jobs:
         if: ${{ github.event.inputs.source == '' }}
         run: python backend/scraper.py
         working-directory: ${{ github.workspace }}
+        env:
+          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
 
       - name: Run scraper (single source)
         if: ${{ github.event.inputs.source != '' }}
         run: python backend/scraper.py --source "${{ github.event.inputs.source }}"
         working-directory: ${{ github.workspace }}
+        env:
+          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
 
       - name: Commit updated campaigns.json
         run: |

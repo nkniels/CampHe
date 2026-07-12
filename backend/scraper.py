@@ -27,6 +27,12 @@ from sources import (
     MinsanteScraper,
     ReliefWebScraper,
     WHOCameroonScraper,
+    # Social Media & RSS
+    WHOAfricaRSSScraper,
+    UNICEFCameroonRSSScraper,
+    MinsanteRSSScraper,
+    TwitterHealthScraper,
+    YouTubeHealthScraper,
 )
 
 # ---------------------------------------------------------------------------
@@ -64,6 +70,12 @@ ALL_SCRAPERS = [
     # Aggregators
     ReliefWebScraper(),
     CAPOneHealthScraper(),
+    # Social Media & RSS Feeds
+    WHOAfricaRSSScraper(),
+    UNICEFCameroonRSSScraper(),
+    MinsanteRSSScraper(),
+    TwitterHealthScraper(),
+    YouTubeHealthScraper(),
 ]
 
 

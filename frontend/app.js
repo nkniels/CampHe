@@ -1,82 +1,112 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Register Service Worker
+
+    // ── Service Worker ─────────────────────────────────────
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').then(registration => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                console.log('SW registered: ', registration.scope);
             }, err => {
-                console.log('ServiceWorker registration failed: ', err);
+                console.warn('SW registration failed: ', err);
             });
         });
     }
 
     const grid = document.getElementById('campaign-grid');
 
-    // Fetch campaign data
+    // ── Detail Drawer ──────────────────────────────────────
+    const detailOverlay  = document.getElementById('detail-overlay');
+    const detailDrawer   = document.getElementById('detail-drawer');
+    const detailCloseBtn = document.getElementById('detail-close-btn');
+
+    function openDetail(campaign) {
+        const status   = campaign.status   || 'unknown';
+        const category = campaign.category || 'general';
+        const link     = (campaign.link || '').startsWith('http') ? campaign.link : null;
+
+        document.getElementById('detail-title').textContent        = campaign.title || '—';
+        document.getElementById('detail-location').textContent     = campaign.location || '—';
+        document.getElementById('detail-date').textContent         = campaign.date || 'Date TBC';
+        document.getElementById('detail-status').textContent       = status.charAt(0).toUpperCase() + status.slice(1);
+        document.getElementById('detail-description').textContent  = campaign.description || 'No description available.';
+        document.getElementById('detail-category-tag').textContent = category.charAt(0).toUpperCase() + category.slice(1);
+
+        const badge = document.getElementById('detail-badge');
+        badge.className   = `badge ${status}`;
+        badge.textContent = status;
+
+        const sourceEl     = document.getElementById('detail-source');
+        const sourceNameEl = document.getElementById('detail-source-name');
+        if (campaign.source_name) {
+            sourceNameEl.textContent = `Source: ${campaign.source_name}`;
+            sourceEl.style.display   = 'flex';
+        } else {
+            sourceEl.style.display   = 'none';
+        }
+
+        const linkBtn = document.getElementById('detail-link-btn');
+        if (link) {
+            linkBtn.href          = link;
+            linkBtn.style.display = 'flex';
+        } else {
+            linkBtn.style.display = 'none';
+        }
+
+        detailOverlay.style.display = 'block';
+        setTimeout(() => detailOverlay.classList.add('show'), 10);
+        detailDrawer.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail() {
+        detailOverlay.classList.remove('show');
+        detailDrawer.classList.remove('open');
+        setTimeout(() => {
+            detailOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 380);
+    }
+
+    detailCloseBtn.addEventListener('click', closeDetail);
+    detailOverlay.addEventListener('click', closeDetail);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+    // ── Campaign Fetch & Render ────────────────────────────
     async function fetchCampaigns() {
         try {
-            // Give a slight delay to show off the skeleton loading animation
             await new Promise(r => setTimeout(r, 800));
-            
-            // Generate a random query parameter to prevent caching for dev purpose
-            const noCacheUrl = './data/campaigns.json?t=' + new Date().getTime();
-            const response = await fetch(noCacheUrl);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            renderCampaigns(data);
+            const response = await fetch('./data/campaigns.json?t=' + Date.now());
+            if (!response.ok) throw new Error('Network response was not ok');
+            renderCampaigns(await response.json());
         } catch (error) {
             console.error('Failed to fetch campaigns:', error);
             grid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; color: var(--cam-red);">
+                <div style="grid-column:1/-1;text-align:center;color:var(--cam-red);padding:3rem;">
                     Failed to load campaigns. Please try again later.
-                </div>
-            `;
+                </div>`;
         }
     }
 
     function renderCampaigns(campaigns) {
-        grid.innerHTML = ''; // Clear skeletons
+        grid.innerHTML = '';
 
-        if (campaigns.length === 0) {
+        if (!campaigns.length) {
             grid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
+                <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:3rem;">
                     No health campaigns currently available.
-                </div>
-            `;
+                </div>`;
             return;
         }
 
+        const locIcon  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+        const calIcon  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
+        const arrIcon  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
+
         campaigns.forEach(campaign => {
-            const card = document.createElement('div');
-            card.className = 'glass-card';
-
-            // SVG icon strings
-            const locationIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
-            const calendarIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
-            const arrowIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
-
-            const status = campaign.status || 'unknown';
+            const card       = document.createElement('div');
+            card.className   = 'glass-card';
+            const status     = campaign.status || 'unknown';
             const sourceName = campaign.source_name || '';
-            const rawLink = campaign.link || '';
-            const date = campaign.date || 'Date TBC';
-
-            // Only show "Read More" for valid absolute URLs (http/https)
-            const isValidLink = rawLink.startsWith('http://') || rawLink.startsWith('https://');
-            const link = isValidLink ? rawLink : '';
-
-            // Build card footer — show source tag and a "Read More" link if available
-            const footerHTML = `
-                <div class="card-footer">
-                    ${sourceName ? `<div class="source-tag"><span>📡 ${sourceName}</span></div>` : '<div></div>'}
-                    ${link
-                        ? `<a class="read-more" href="${link}" target="_blank" rel="noopener noreferrer">
-                               Read more ${arrowIcon}
-                           </a>`
-                        : ''}
-                </div>
-            `;
+            const date       = campaign.date || 'Date TBC';
 
             card.innerHTML = `
                 <div class="card-header">
@@ -84,13 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="badge ${status}">${status}</span>
                 </div>
                 <div class="card-meta">
-                    <span>${locationIcon} ${campaign.location || 'Cameroun'}</span>
-                    <span>${calendarIcon} ${date}</span>
+                    <span>${locIcon} ${campaign.location || 'Cameroun'}</span>
+                    <span>${calIcon} ${date}</span>
                 </div>
                 <p class="card-desc">${campaign.description || ''}</p>
-                ${footerHTML}
-            `;
+                <div class="card-footer">
+                    ${sourceName ? `<div class="source-tag"><span>📡 ${sourceName}</span></div>` : '<div></div>'}
+                    <span class="read-more">Details ${arrIcon}</span>
+                </div>`;
 
+            card.addEventListener('click', () => openDetail(campaign));
             grid.appendChild(card);
         });
     }

@@ -509,3 +509,235 @@ class CAPOneHealthScraper(BaseScraper):
                 }
             )
         return campaigns
+
+
+# =============================================================================
+# CATEGORY 5: SOCIAL MEDIA & RSS SOURCES
+# =============================================================================
+
+
+class RSSFeedScraper(BaseScraper):
+    """
+    Generic RSS Feed Scraper.
+    Subclass and set SOURCE_NAME + SOURCE_URL to add any RSS feed.
+    Filters entries by HEALTH_KEYWORDS automatically.
+    """
+
+    SOURCE_NAME = "RSS Feed"
+    SOURCE_URL  = ""
+    CATEGORY    = "social"
+
+    HEALTH_KEYWORDS = [
+        "santé", "sante", "health", "vaccin", "vaccine", "campagne",
+        "campaign", "paludisme", "malaria", "nutrition", "cholera",
+        "vih", "hiv", "dépistage", "screening", "minsante", "cameroon", "cameroun",
+    ]
+
+    def parse(self, soup: BeautifulSoup) -> list[dict]:
+        campaigns = []
+        for item in soup.find_all("item"):
+            title_el = item.find("title")
+            desc_el  = item.find("description")
+            link_el  = item.find("link")
+            date_el  = item.find("pubdate") or item.find("dc:date")
+
+            title = _safe_text(title_el)
+            if not title:
+                continue
+
+            combined = (title + " " + _safe_text(desc_el)).lower()
+            if not any(kw in combined for kw in self.HEALTH_KEYWORDS):
+                continue
+
+            link = ""
+            if link_el:
+                link = link_el.get_text(strip=True) or link_el.get("href", "")
+
+            desc_raw   = _safe_text(desc_el)
+            desc_clean = BeautifulSoup(desc_raw, "html.parser").get_text(separator=" ", strip=True)
+
+            campaigns.append({
+                "id": hashlib.md5(f"rss:{self.SOURCE_NAME}:{title}".encode()).hexdigest()[:12],
+                "title": title,
+                "date": _try_parse_date(_safe_text(date_el)),
+                "description": desc_clean[:500] + ("…" if len(desc_clean) > 500 else ""),
+                "location": "Cameroun",
+                "link": link,
+                "source_name": self.SOURCE_NAME,
+                "source_url": self.SOURCE_URL,
+                "category": self.CATEGORY,
+                "scraped_at": datetime.utcnow().isoformat() + "Z",
+                "status": "unknown",
+            })
+
+        logger.info(f"[{self.SOURCE_NAME}] Found {len(campaigns)} health RSS item(s).")
+        return campaigns
+
+
+class WHOAfricaRSSScraper(RSSFeedScraper):
+    """WHO Africa official RSS feed — covers Cameroon health alerts & press releases."""
+    SOURCE_NAME = "WHO Africa RSS"
+    SOURCE_URL  = "https://www.afro.who.int/rss.xml"
+
+
+class UNICEFCameroonRSSScraper(RSSFeedScraper):
+    """UNICEF Cameroon press releases via ReliefWeb RSS."""
+    SOURCE_NAME = "UNICEF Cameroon RSS"
+    SOURCE_URL  = (
+        "https://api.reliefweb.int/v1/reports.rss"
+        "?appname=camphe-scraper"
+        "&filter[operator]=AND"
+        "&filter[conditions][0][field]=country.id&filter[conditions][0][value]=192"
+        "&filter[conditions][1][field]=source.name&filter[conditions][1][value]=UNICEF"
+        "&sort[]=date:desc&limit=20"
+    )
+
+
+class MinsanteRSSScraper(RSSFeedScraper):
+    """MINSANTE RSS feed — direct from the Cameroon Ministry of Health."""
+    SOURCE_NAME = "MINSANTE RSS"
+    SOURCE_URL  = "https://www.minsante.cm/site/?q=rss.xml"
+
+
+class TwitterHealthScraper(BaseScraper):
+    """
+    Twitter / X — Recent health tweets about Cameroon.
+    Requires env var TWITTER_BEARER_TOKEN (Twitter Developer Portal, free tier).
+    """
+
+    SOURCE_NAME = "Twitter / X"
+    SOURCE_URL  = "https://api.twitter.com/2/tweets/search/recent"
+    CATEGORY    = "social"
+    QUERY = (
+        "(#SantéCameroun OR #MINSANTE OR #CampagneSante OR #Vaccination OR "
+        "MINSANTE OR vaccin Cameroun OR santé Cameroun) lang:fr -is:retweet -is:reply"
+    )
+
+    def parse(self, soup: BeautifulSoup) -> list[dict]:
+        return []
+
+    def run(self) -> list[dict]:
+        import os
+        import requests as req
+
+        bearer_token = os.environ.get("TWITTER_BEARER_TOKEN", "")
+        if not bearer_token:
+            logger.warning(f"[{self.SOURCE_NAME}] TWITTER_BEARER_TOKEN not set — skipping.")
+            return []
+
+        headers = {**COMMON_HEADERS, "Authorization": f"Bearer {bearer_token}"}
+        params  = {
+            "query": self.QUERY,
+            "max_results": 20,
+            "tweet.fields": "created_at,author_id,text",
+            "expansions": "author_id",
+            "user.fields": "name,username",
+        }
+
+        try:
+            resp = req.get(self.SOURCE_URL, headers=headers, params=params, timeout=self.timeout)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as e:
+            logger.error(f"[{self.SOURCE_NAME}] API call failed: {e}")
+            return []
+
+        users = {u["id"]: u for u in data.get("includes", {}).get("users", [])}
+        campaigns = []
+
+        for tweet in data.get("data", []):
+            text     = tweet.get("text", "")
+            uid      = tweet.get("author_id", "")
+            user     = users.get(uid, {})
+            username = user.get("username", "")
+            url      = f"https://twitter.com/{username}/status/{tweet['id']}" if username else ""
+
+            campaigns.append({
+                "id": hashlib.md5(f"twitter:{tweet['id']}".encode()).hexdigest()[:12],
+                "title": text[:120] + ("…" if len(text) > 120 else ""),
+                "date": tweet.get("created_at", "")[:10],
+                "description": text,
+                "location": "Cameroun",
+                "link": url,
+                "source_name": f"Twitter — @{username}" if username else self.SOURCE_NAME,
+                "source_url": url,
+                "category": self.CATEGORY,
+                "scraped_at": datetime.utcnow().isoformat() + "Z",
+                "status": "unknown",
+            })
+
+        logger.info(f"[{self.SOURCE_NAME}] Found {len(campaigns)} tweet(s).")
+        return campaigns
+
+
+class YouTubeHealthScraper(BaseScraper):
+    """
+    YouTube Data API v3 — Cameroon health video search.
+    Requires env var YOUTUBE_API_KEY (free 10,000 units/day quota).
+    """
+
+    SOURCE_NAME = "YouTube"
+    SOURCE_URL  = "https://www.googleapis.com/youtube/v3/search"
+    CATEGORY    = "social"
+    SEARCH_QUERY = "campagne santé Cameroun vaccination MINSANTE"
+
+    def parse(self, soup: BeautifulSoup) -> list[dict]:
+        return []
+
+    def run(self) -> list[dict]:
+        import os
+        import requests as req
+
+        api_key = os.environ.get("YOUTUBE_API_KEY", "")
+        if not api_key:
+            logger.warning(f"[{self.SOURCE_NAME}] YOUTUBE_API_KEY not set — skipping.")
+            return []
+
+        params = {
+            "part": "snippet",
+            "q": self.SEARCH_QUERY,
+            "type": "video",
+            "relevanceLanguage": "fr",
+            "regionCode": "CM",
+            "maxResults": 15,
+            "order": "date",
+            "key": api_key,
+        }
+
+        try:
+            resp = req.get(self.SOURCE_URL, params=params, headers=COMMON_HEADERS, timeout=self.timeout)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as e:
+            logger.error(f"[{self.SOURCE_NAME}] API call failed: {e}")
+            return []
+
+        campaigns = []
+        for item in data.get("items", []):
+            snippet  = item.get("snippet", {})
+            video_id = item.get("id", {}).get("videoId", "")
+            title    = snippet.get("title", "")
+            desc     = snippet.get("description", "")
+            pub_date = snippet.get("publishedAt", "")[:10]
+            channel  = snippet.get("channelTitle", "")
+            url      = f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
+
+            if not title:
+                continue
+
+            campaigns.append({
+                "id": hashlib.md5(f"youtube:{video_id}".encode()).hexdigest()[:12],
+                "title": title,
+                "date": pub_date,
+                "description": desc[:500] + ("…" if len(desc) > 500 else ""),
+                "location": "Cameroun",
+                "link": url,
+                "source_name": f"YouTube — {channel}",
+                "source_url": url,
+                "category": self.CATEGORY,
+                "scraped_at": datetime.utcnow().isoformat() + "Z",
+                "status": "unknown",
+            })
+
+        logger.info(f"[{self.SOURCE_NAME}] Found {len(campaigns)} video(s).")
+        return campaigns
