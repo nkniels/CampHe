@@ -12,6 +12,7 @@ import hashlib
 import logging
 import re
 from datetime import datetime
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from dateutil import parser as dateparser
@@ -77,11 +78,7 @@ class MinsanteScraper(BaseScraper):
                     "date": _try_parse_date(_safe_text(date_el)),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": (
-                        "https://www.minsante.cm" + link_el["href"]
-                        if link_el and link_el.get("href", "").startswith("/")
-                        else (link_el.get("href", "") if link_el else "")
-                    ),
+                    "link": urljoin(self.SOURCE_URL, link_el.get("href", "")) if link_el else self.SOURCE_URL,
                 }
             )
         return campaigns
@@ -120,7 +117,7 @@ class CDNSSScraper(BaseScraper):
                     "date": _try_parse_date(_safe_text(date_el)),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": link_el.get("href", "") if link_el else "",
+                    "link": urljoin(self.SOURCE_URL, link_el.get("href", "")) if link_el else self.SOURCE_URL,
                 }
             )
         return campaigns
@@ -165,11 +162,7 @@ class CameroonTribuneScraper(BaseScraper):
                     "date": _try_parse_date(_safe_text(date_el)),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": (
-                        "https://www.cameroon-tribune.cm" + link_el.get("href", "")
-                        if link_el and link_el.get("href", "").startswith("/")
-                        else link_el.get("href", "") if link_el else ""
-                    ),
+                    "link": urljoin(self.SOURCE_URL, link_el.get("href", "")) if link_el else self.SOURCE_URL,
                 }
             )
         return campaigns
@@ -211,7 +204,7 @@ class ActuCamerounScraper(BaseScraper):
                     ),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": link_el.get("href", "") if link_el else "",
+                    "link": urljoin(self.SOURCE_URL, link_el.get("href", "")) if link_el else self.SOURCE_URL,
                 }
             )
         return campaigns
@@ -257,7 +250,7 @@ class CRTVScraper(BaseScraper):
                     "date": _try_parse_date(_safe_text(date_el)),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": title_el.get("href", "") if title_el else "",
+                    "link": urljoin(self.SOURCE_URL, title_el.get("href", "")) if title_el else self.SOURCE_URL,
                 }
             )
         return campaigns
@@ -303,11 +296,7 @@ class WHOCameroonScraper(BaseScraper):
                     "date": _try_parse_date(_safe_text(date_el)),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": (
-                        "https://www.afro.who.int" + link_el.get("href", "")
-                        if link_el and link_el.get("href", "").startswith("/")
-                        else link_el.get("href", "") if link_el else ""
-                    ),
+                    "link": urljoin(self.SOURCE_URL, link_el.get("href", "")) if link_el else self.SOURCE_URL,
                 }
             )
         return campaigns
@@ -417,7 +406,7 @@ class ReliefWebScraper(BaseScraper):
         "&filter[conditions][0][field]=country.id&filter[conditions][0][value]=192"
         "&filter[conditions][1][field]=theme.id&filter[conditions][1][value]=4590"
         "&fields[include][]=title&fields[include][]=date&fields[include][]=body"
-        "&fields[include][]=url_alias&fields[include][]=source"
+        "&fields[include][]=url&fields[include][]=source"
         "&sort[]=date:desc"
         "&limit=20"
     )
@@ -467,7 +456,7 @@ class ReliefWebScraper(BaseScraper):
                     if fields.get("body")
                     else f"Source: {source_names}",
                     "location": "Cameroun",
-                    "link": "https://reliefweb.int" + fields.get("url_alias", ""),
+                    "link": fields.get("url", ""),
                     "source_name": self.SOURCE_NAME,
                     "source_url": self.SOURCE_URL,
                     "category": self.CATEGORY,
@@ -516,7 +505,7 @@ class CAPOneHealthScraper(BaseScraper):
                     "date": _try_parse_date(_safe_text(date_el)),
                     "description": _safe_text(desc_el),
                     "location": "Cameroun",
-                    "link": link_el.get("href", "") if link_el else "",
+                    "link": urljoin(self.SOURCE_URL, link_el.get("href", "")) if link_el else self.SOURCE_URL,
                 }
             )
         return campaigns

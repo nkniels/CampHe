@@ -59,8 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const status = campaign.status || 'unknown';
             const sourceName = campaign.source_name || '';
-            const link = campaign.link || '';
+            const rawLink = campaign.link || '';
             const date = campaign.date || 'Date TBC';
+
+            // Only show "Read More" for valid absolute URLs (http/https)
+            const isValidLink = rawLink.startsWith('http://') || rawLink.startsWith('https://');
+            const link = isValidLink ? rawLink : '';
 
             // Build card footer — show source tag and a "Read More" link if available
             const footerHTML = `
