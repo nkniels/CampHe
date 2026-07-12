@@ -45,15 +45,19 @@ let isSignUpMode = false;
 // Modal Logic
 authBtn.addEventListener('click', () => {
     authModal.style.display = 'flex';
+    // Small delay to allow display block to apply before opacity transition
+    setTimeout(() => authModal.classList.add('show'), 10);
 });
 
 closeBtn.addEventListener('click', () => {
-    authModal.style.display = 'none';
+    authModal.classList.remove('show');
+    setTimeout(() => authModal.style.display = 'none', 300);
 });
 
 window.addEventListener('click', (e) => {
     if (e.target === authModal) {
-        authModal.style.display = 'none';
+        authModal.classList.remove('show');
+        setTimeout(() => authModal.style.display = 'none', 300);
     }
 });
 
@@ -82,7 +86,8 @@ authForm.addEventListener('submit', async (e) => {
         } else {
             await signInWithEmailAndPassword(auth, email, password);
         }
-        authModal.style.display = 'none';
+        authModal.classList.remove('show');
+        setTimeout(() => authModal.style.display = 'none', 300);
     } catch (error) {
         showError(error.message);
     }
@@ -93,7 +98,8 @@ googleSignInBtn.addEventListener('click', async () => {
     const provider = new GoogleAuthProvider();
     try {
         await signInWithPopup(auth, provider);
-        authModal.style.display = 'none';
+        authModal.classList.remove('show');
+        setTimeout(() => authModal.style.display = 'none', 300);
     } catch (error) {
         showError(error.message);
     }
